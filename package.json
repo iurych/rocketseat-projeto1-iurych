@@ -1,0 +1,14 @@
+{
+  "name": "projeto-1",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "dev-stream": "node --watch streams/stream-http-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
