@@ -1,56 +1,39 @@
 import http from 'node:http';
+import { randomUUID } from 'node:crypto'
+import { Database } from './database.js'
+import { json } from './midlleware/json.js'
 
-// - criar
-// - ler
-// - atualizar
-// - deleter
-
-// HTTP:
-// - Método http;
-// - URL
-
-const users = [];
-let id = 1;
+const database = new Database()
 
 const server = http.createServer(async (req, res) => {
-  const { method, url } = req;
+  const {method, url } = req
 
-  const buffers = [];
+  await json(req, res)
 
-  for await (const chunk of req) {
-    buffers.push(chunk);
+  if (method === 'GET' && url === '/users') {
+    const users = database.select('users')
+
+    return res.end(JSON.stringify(users))
   }
 
-  const body = Buffer.concat(buffers).toString();
+  if ( method === 'POST' && url == '/users') {
+    const {name, email } = req.body
 
-  console.log(body);
+    const user = {
+      id: randomUUID(),
+      name,
+      email
+    }
 
-  if (req.method === 'GET' && url === '/users') {
-    return res
-      .setHeader('content-type', 'application-json')
-      .end(JSON.stringify(users));
+    database.insert('users', user)
+
+    return res.writeHead(201).end()
   }
 
-  if (method === 'POST' && url === '/users') {
-    users.push(
-      {
-        id: id++,
-        name: 'Iury',
-        email: 'iury@gmail.com',
-      },
-      {
-        id: id++,
-        name: 'mikhail',
-        email: 'mikhail@gmail.com',
-      }
-    );
-    return res.writeHead(201).end('usuário criado com sucesso');
-  }
-
-  return res.writeHead(404).end();
-});
+  return res.writeHead(404).end()
+})
 
 const PORT = 3333;
 server.listen(PORT, () => {
-  console.log(`running at http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
